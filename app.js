@@ -81,25 +81,29 @@ function exibirModelos(departamento, departamentoNome) {
 
 
 
+
 // Função para excluir um modelo específico
 async function excluirModelo(modeloId) {
   const modeloContainer = document.getElementById(modeloId);
   modeloContainer.remove();
+
+
+
+
+
 
   // Remova o modelo do Supabase
   try {
     const { data, error } = await database
       .from('modelos')
       .delete()
-      .eq('id', modeloId);
+      .eq('id', modeloId);  // Use delete() em vez de upsert()
 
     if (error) {
       console.error('Erro ao excluir o modelo:', error);
       alert('Erro ao excluir o modelo. Consulte o console para obter mais detalhes.');
     } else {
       alert('Modelo excluído com sucesso!');
-      // Recarrega a página imediatamente após a exclusão
-      window.location.reload(true); // O parâmetro true força o recarregamento da página do servidor, ignorando o cache do navegador
     }
   } catch (error) {
     console.error('Erro ao excluir o modelo:', error);
@@ -110,20 +114,9 @@ async function excluirModelo(modeloId) {
 
 
 
-
-
 // Função para exibir o formulário para adicionar modelos
 function exibirFormulario() {
-  // Mova o formulário para o topo da lista
-  const modelosContainer = document.getElementById("privadoContainer"); // Use o container apropriado
-  const formulario = document.getElementById("modelo-form");
-
-  modelosContainer.insertBefore(formulario, modelosContainer.firstChild);
-
-  // Exiba o formulário
-  formulario.style.display = "block";
-
-  // Limpe o formulário e redefina os valores
+  document.getElementById("modelo-form").style.display = "block";
   document.querySelector("form").reset();
 }
 
@@ -165,18 +158,21 @@ async function adicionarModelo(titulo, departamento, texto) {
   const departamentosAceitos = ["privado", "corporativo", "regional", "publicos", "cofres"];
 
   if (!departamentosAceitos.includes(departamento)) {
-    alert("Departamento inválido. Os departamentos aceitos são: privado, corporativo, regional, publicos, cofres.");
+    alert(
+      "Departamento inválido. Os departamentos aceitos são: privado, corporativo, regional, publicos, cofres."
+    );
     return;
   }
 
-  // Cria um elemento temporário para armazenar o texto formatado
+  // Crie um elemento temporário para armazenar o texto formatado
   const tempElement = document.createElement('div');
   tempElement.innerHTML = texto;
 
-  // Obtém o texto formatado
+
+  // Obtenha o texto formatado
   const textoFormatado = tempElement.innerHTML;
 
-  // Adiciona o modelo ao Supabase
+  // Adicione o modelo ao Supabase
   try {
     const { data, error } = await database
       .from('modelos')
@@ -187,18 +183,13 @@ async function adicionarModelo(titulo, departamento, texto) {
       alert('Erro ao adicionar o modelo. Consulte o console para obter mais detalhes.');
     } else {
       alert('Modelo adicionado com sucesso!');
-      // Recarrega a página após um curto intervalo (por exemplo, 1 segundo)
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      carregarModelos(); // Recarrega os modelos após adição
     }
   } catch (error) {
     console.error('Erro ao adicionar o modelo:', error);
     alert('Erro ao adicionar o modelo. Consulte o console para obter mais detalhes.');
   }
 }
-
-
 
 
 
@@ -344,7 +335,7 @@ function criarModeloHtml(modelo) {
   <input type="checkbox" class="modelo-checkbox" data-modelo="${modelo.id}">
   <h2>
     <span class="titulo-editavel">${modelo.titulo}</span>
-    <button onclick="editarModelo('${modelo.id}')">Editar</button>
+    <button class="botaoeditar" onclick="editarModelo('${modelo.id}')">Editar</button>
   </h2>
   <p>${modelo.texto}</p>
   <button class="copiarmodelo" onclick="copiarModelo('${modelo.texto}')">Copiar Modelo</button>
