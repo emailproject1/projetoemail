@@ -116,9 +116,21 @@ async function excluirModelo(modeloId) {
 
 // Função para exibir o formulário para adicionar modelos
 function exibirFormulario() {
-  document.getElementById("modelo-form").style.display = "block";
+  var formulario = document.getElementById("modelo-form");
+  formulario.style.display = "block";
+
+  // Obter o departamento selecionado no formulário
+  const departamentoSelecionado = document.getElementById("departamento").value;
+
+  // Mover o formulário para o topo do contêiner do departamento selecionado
+  const container = document.getElementById(`${departamentoSelecionado}Container`);
+  container.prepend(formulario);
+
+  // Resetar os campos do formulário
   document.querySelector("form").reset();
 }
+
+
 
 
 
@@ -168,7 +180,6 @@ async function adicionarModelo(titulo, departamento, texto) {
   const tempElement = document.createElement('div');
   tempElement.innerHTML = texto;
 
-
   // Obtenha o texto formatado
   const textoFormatado = tempElement.innerHTML;
 
@@ -184,12 +195,19 @@ async function adicionarModelo(titulo, departamento, texto) {
     } else {
       alert('Modelo adicionado com sucesso!');
       carregarModelos(); // Recarrega os modelos após adição
+      
+      // Aguarde 1 segundo antes de recarregar a página
+      setTimeout(function() {
+        location.reload(); // Recarrega a página
+      }, 1000);
     }
   } catch (error) {
     console.error('Erro ao adicionar o modelo:', error);
     alert('Erro ao adicionar o modelo. Consulte o console para obter mais detalhes.');
   }
 }
+
+
 
 
 
