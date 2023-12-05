@@ -213,18 +213,63 @@ async function adicionarModelo(titulo, departamento, texto) {
 
 
 
+// Função para editar um modelo específico
+async function editarModelo(modeloId) {
+  try {
+    // Obtenha o modelo do Supabase para edição
+    const { data, error } = await database
+      .from('modelos')
+      .select('id, titulo, departamento, texto')
+      .eq('id', modeloId)
+      .single();
 
-// Exemplo de implementação na função editarModelo
-function editarModelo(modeloId) {
-  const novoTitulo = prompt("Novo título:");
-  const novoTexto = prompt("Novo texto:");
+    if (error) {
+      console.error('Erro ao obter o modelo para edição:', error);
+      alert('Erro ao obter o modelo para edição. Consulte o console para obter mais detalhes.');
+      return;
+    }
 
-  if (novoTitulo && novoTexto) {
-    salvarAlteracoesModelo(modeloId, novoTitulo, novoTexto);
-  } else {
-    alert("Por favor, preencha todos os campos.");
+    // Pergunte ao usuário por novos dados
+    const novoTitulo = prompt("Novo título:", data.titulo);
+    const novoTexto = prompt("Novo texto:", data.texto);
+
+    // Verifique se o usuário forneceu dados válidos
+    if (novoTitulo !== null && novoTexto !== null) {
+      // Salve as alterações no banco de dados
+      await salvarAlteracoesModelo(modeloId, novoTitulo, novoTexto);
+
+      // Atualize a visualização (opcional)
+      atualizarTitulo(modeloId);
+    } else {
+      alert("Edição cancelada pelo usuário.");
+    }
+  } catch (error) {
+    console.error('Erro ao editar o modelo:', error);
+    alert('Erro ao editar o modelo. Consulte o console para obter mais detalhes.');
   }
 }
+
+// Função para salvar as alterações em um modelo específico
+async function salvarAlteracoesModelo(modeloId, novoTitulo, novoTexto) {
+  try {
+    // Atualize os dados no Supabase
+    const { data, error } = await database
+      .from('modelos')
+      .update({ titulo: novoTitulo, texto: novoTexto })
+      .eq('id', modeloId);
+
+    if (error) {
+      console.error('Erro ao salvar as alterações no modelo:', error);
+      alert('Erro ao salvar as alterações no modelo. Consulte o console para obter mais detalhes.');
+    } else {
+      alert('Alterações salvas com sucesso!');
+    }
+  } catch (error) {
+    console.error('Erro ao salvar as alterações no modelo:', error);
+    alert('Erro ao salvar as alterações no modelo. Consulte o console para obter mais detalhes.');
+  }
+}
+
 
 
 
